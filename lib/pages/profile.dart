@@ -11,7 +11,11 @@ class ProfilePage extends StatelessWidget {
     return Scaffold(
         appBar: AppBar(
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          title: const Text(Strings.profilePageTitle),
+          centerTitle: true,
+          title: const Text(
+            Strings.profilePageTitle,
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
         ),
         body: Container(
           padding: const EdgeInsets.all(16),
@@ -45,6 +49,7 @@ class ProfileFormState extends State<ProfileForm> {
 
   @override
   Widget build(BuildContext context) {
+    loadProfileData();
     return Form(
       key: _formKey,
       child: Column(
@@ -52,7 +57,10 @@ class ProfileFormState extends State<ProfileForm> {
         children: <Widget>[
           const Text(Strings.name),
           TextFormField(
+            decoration: const InputDecoration(hintText: Strings.nameHint),
             controller: nameController,
+            keyboardType: TextInputType.name,
+            textCapitalization: TextCapitalization.words,
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return Strings.invalidName;
@@ -63,6 +71,7 @@ class ProfileFormState extends State<ProfileForm> {
           const SizedBox(height: 16),
           const Text(Strings.height),
           TextFormField(
+            decoration: const InputDecoration(hintText: Strings.heightHint),
             controller: heightController,
             keyboardType: TextInputType.number,
             validator: (value) {
@@ -75,6 +84,7 @@ class ProfileFormState extends State<ProfileForm> {
           const SizedBox(height: 16),
           const Text(Strings.age),
           TextFormField(
+            decoration: const InputDecoration(hintText: Strings.ageHint),
             controller: ageController,
             keyboardType: TextInputType.number,
             validator: (value) {
@@ -89,9 +99,6 @@ class ProfileFormState extends State<ProfileForm> {
             child: ElevatedButton(
               onPressed: () async {
                 if (_formKey.currentState!.validate()) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text(Strings.savingSnackBar)),
-                  );
                   await saveProfileData(() {
                     if (!mounted) return;
                     Navigator.pushNamed(context, Strings.homePage);
@@ -113,5 +120,12 @@ class ProfileFormState extends State<ProfileForm> {
     await prefs.setString(Strings.profileHeightKey, heightController.text);
 
     onSuccess.call();
+  }
+
+  Future<void> loadProfileData() async {
+    final prefs = await SharedPreferences.getInstance();
+    nameController.text = prefs.getString(Strings.profileNameKey) ?? '';
+    ageController.text = prefs.getString(Strings.profileAgeKey) ?? '';
+    heightController.text = prefs.getString(Strings.profileHeightKey) ?? '';
   }
 }

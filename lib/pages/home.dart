@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../constants/strings.dart';
 
@@ -10,11 +11,15 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _counter = 0;
+  String _profileName = '';
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
+  @override
+  void initState() {
+    super.initState();
+    loadProfileName().then((result) {
+      setState(() {
+        _profileName = result;
+      });
     });
   }
 
@@ -22,28 +27,41 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () {
+              Navigator.pushNamed(context, Strings.profilePage);
+            },
+          )
+        ],
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text(Strings.appTitle),
+        title: const Text(
+          Strings.appTitle,
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
       ),
-      body: Center(
+      body: Container(
+        padding: const EdgeInsets.all(16),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
+            Text('Welcome back, $_profileName',
+                style: Theme.of(context).textTheme.labelLarge),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
+        onPressed: () {},
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ),
     );
+  }
+
+  Future<String> loadProfileName() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(Strings.profileNameKey)
+        ?.split(' ').first ?? '';
   }
 }
