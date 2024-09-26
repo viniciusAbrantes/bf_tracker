@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../constants/strings.dart';
 import '../models/body_fat_log.dart';
 import '../services/database_service.dart';
+import '../widgets/body_fat_list.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -52,11 +53,11 @@ class _HomePageState extends State<HomePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Text(
-              Strings.welcomeBack + _profileName,
+              '${Strings.welcomeBack}, $_profileName :)',
               style: Theme.of(context).textTheme.labelLarge,
             ),
             const SizedBox(height: 16),
-            Expanded(child: _bfList()),
+            BodyFatList()
           ],
         ),
       ),
@@ -86,21 +87,20 @@ class _HomePageState extends State<HomePage> {
                     hintText: Strings.bfLogHint,
                   ),
                 ),
-                MaterialButton(
-                  color: Theme.of(context).colorScheme.primary,
-                  onPressed: () {
-                    if (_fatPercentage == null || _fatPercentage == "") return;
-                    _databaseService.addLog(double.parse(_fatPercentage!));
-                    setState(() {
-                      _fatPercentage = null;
-                    });
-                    Navigator.pop(context);
-                  },
-                  child: const Text(
-                    Strings.bfDoneButton,
-                    style: TextStyle(
-                      color: Colors.white,
-                    ),
+                const SizedBox(height: 16),
+                Center(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      if (_fatPercentage == null || _fatPercentage == "") {
+                        return;
+                      }
+                      _databaseService.addLog(double.parse(_fatPercentage!));
+                      setState(() {
+                        _fatPercentage = null;
+                      });
+                      Navigator.pop(context);
+                    },
+                    child: const Text(Strings.saveButton),
                   ),
                 ),
               ],
@@ -108,30 +108,7 @@ class _HomePageState extends State<HomePage> {
           ),
         );
       },
-      child: const Icon(
-        Icons.add,
-      ),
-    );
-  }
-
-  Widget _bfList() {
-    return FutureBuilder(
-      future: _databaseService.getLogs(),
-      builder: (context, snapshot) {
-        return ListView.builder(
-          itemCount: snapshot.data?.length ?? 0,
-          itemBuilder: (context, index) {
-            BodyFatLog log = snapshot.data![index];
-            return ListTile(
-              onLongPress: () {
-                _databaseService.deleteLog(log.id);
-                setState(() {});
-              },
-              title: Text(log.fatPercentage.toString()),
-            );
-          },
-        );
-      },
+      child: const Icon(Icons.add),
     );
   }
 

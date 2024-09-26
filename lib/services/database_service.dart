@@ -10,6 +10,7 @@ class DatabaseService {
   final String _tableName = "bf_log";
   final String _idColName = "id";
   final String _fatPercentageColName = "fat_percentage";
+  final String _dateColName = "date";
 
   DatabaseService._constructor();
 
@@ -21,7 +22,7 @@ class DatabaseService {
 
   Future<Database> getDatabase() async {
     final databaseDirPath = await getDatabasesPath();
-    final databasePath = join(databaseDirPath, "bf_log_db3.db");
+    final databasePath = join(databaseDirPath, "bf_log_db4.db");
     final database = await openDatabase(
       databasePath,
       version: 1,
@@ -29,7 +30,8 @@ class DatabaseService {
         db.execute('''
         CREATE TABLE $_tableName (
           $_idColName INTEGER PRIMARY KEY,
-          $_fatPercentageColName REAL NOT NULL
+          $_fatPercentageColName REAL NOT NULL,
+          $_dateColName TEXT NOT NULL
         )
         ''');
       },
@@ -39,7 +41,10 @@ class DatabaseService {
 
   void addLog(double fatPercentage) async {
     final db = await database;
-    await db.insert(_tableName, {_fatPercentageColName: fatPercentage});
+    await db.insert(_tableName, {
+      _fatPercentageColName: fatPercentage,
+      _dateColName: DateTime.now().toIso8601String(),
+    });
   }
 
   Future<List<BodyFatLog>> getLogs() async {
@@ -50,6 +55,7 @@ class DatabaseService {
           (e) => BodyFatLog(
             id: e[_idColName] as int,
             fatPercentage: e[_fatPercentageColName] as double,
+            date: DateTime.tryParse(e[_dateColName] as String) as DateTime,
           ),
         )
         .toList();
@@ -58,12 +64,6 @@ class DatabaseService {
 
   void deleteLog(int id) async {
     final db = await database;
-    await db.delete(
-      _tableName,
-      where: 'id = ?',
-      whereArgs: [
-        id,
-      ],
-    );
+    await db.delete(_tableName, where: 'id = ?', whereArgs: [id]);
   }
 }
