@@ -7,6 +7,12 @@ class Strings {
   static const String homePage = '/';
 
   //profile page
+  static const String welcomeBack = 'Welcome back, ';
+  static const String bfDialogTitle = 'Register body fat';
+  static const String bfLogHint = 'Enter bf %';
+  static const String bfDoneButton = 'Done';
+
+  //home page
   static const String name = 'Name';
   static const String age = 'Age';
   static const String height = 'Height';
