@@ -1,10 +1,9 @@
+import 'package:bf_tracker/widgets/body_fat_list.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../constants/strings.dart';
-import '../models/body_fat_log.dart';
 import '../services/database_service.dart';
-import '../widgets/body_fat_list.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -16,7 +15,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   String _profileName = '';
   final DatabaseService _databaseService = DatabaseService.instance;
-  String? _fatPercentage;
 
   @override
   void initState() {
@@ -58,6 +56,7 @@ class _HomePageState extends State<HomePage> {
             ),
             const SizedBox(height: 16),
             BodyFatList()
+            //_logList()
           ],
         ),
       ),
@@ -66,50 +65,78 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _addBfButton() {
+    final formKey = GlobalKey<FormState>();
+    final bfPercentageController = TextEditingController();
+    final weightController = TextEditingController();
     return FloatingActionButton(
       onPressed: () {
         showDialog(
           context: context,
           builder: (_) => AlertDialog(
             title: const Text(Strings.bfDialogTitle),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) {
-                    setState(() {
-                      _fatPercentage = value;
-                    });
-                  },
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    hintText: Strings.bfLogHint,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Center(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      if (_fatPercentage == null || _fatPercentage == "") {
-                        return;
-                      }
-                      _databaseService.addLog(double.parse(_fatPercentage!));
-                      setState(() {
-                        _fatPercentage = null;
-                      });
-                      Navigator.pop(context);
-                    },
-                    child: const Text(Strings.saveButton),
-                  ),
-                ),
-              ],
-            ),
+            content: Form(
+                key: formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextFormField(
+                      controller: weightController,
+                      keyboardType: TextInputType.number,
+                      validator: (value) {
+                        if (value == null || double.tryParse(value) == null) {
+                          return Strings.invalidWeight;
+                        }
+                        return null;
+                      },
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        hintText: Strings.weightHint,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: bfPercentageController,
+                      keyboardType: TextInputType.number,
+                      validator: (value) {
+                        if (value == null || double.tryParse(value) == null) {
+                          return Strings.invalidPercentage;
+                        }
+                        return null;
+                      },
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        hintText: Strings.bfPercentageHint,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Center(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          if (!formKey.currentState!.validate()) return;
+                          saveBfLog(
+                              double.parse(weightController.text),
+                              double.parse(bfPercentageController.text),
+                              () {
+                            bfPercentageController.text = '';
+                            setState(() {});
+                            Navigator.pop(context);
+                          });
+                        },
+                        child: const Text(Strings.saveButton),
+                      ),
+                    ),
+                  ],
+                )),
           ),
         );
       },
       child: const Icon(Icons.add),
     );
+  }
+
+  void saveBfLog(double weight, double bf, VoidCallback onSuccess) async {
+    await _databaseService.addLog(weight, bf);
+    onSuccess.call();
   }
 
   Future<String> loadProfileName() async {

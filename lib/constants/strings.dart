@@ -9,7 +9,10 @@ class Strings {
   //profile page
   static const String welcomeBack = 'Welcome back';
   static const String bfDialogTitle = 'Register your body fat';
-  static const String bfLogHint = 'Body fat percentage';
+  static const String weightHint = 'Inform yor weight';
+  static const String bfPercentageHint = 'Body fat percentage';
+  static const String invalidWeight = 'Please inform a valid weight';
+  static const String invalidPercentage = 'Please inform a valid value';
 
   //home page
   static const String name = 'Name';

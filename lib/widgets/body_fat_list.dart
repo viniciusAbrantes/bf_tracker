@@ -38,7 +38,7 @@ class BodyFatListState extends State<BodyFatList> {
 
   _listItem(BodyFatLog item) {
     final bfPercentage = '${item.fatPercentage.toStringAsFixed(0)}%';
-    final kgValue = '32kg';
+    final kgValue = item.fatPercentage * item.weight / 100;
     return Container(
       height: 70,
       decoration: BoxDecoration(
@@ -58,12 +58,16 @@ class BodyFatListState extends State<BodyFatList> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(DateFormat('dd/MM/yyyy').format(item.date)),
-                Text('60kg')
+                Text(
+                  '${item.weight.toStringAsFixed(0)}kg',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                )
               ],
             ),
             Row(
               children: [
-                Text("Body Fat: ${bfPercentage} - $kgValue"),
+                Text(
+                    "Body Fat: $bfPercentage (${kgValue.toStringAsFixed(0)}kg)"),
               ],
             ),
           ],

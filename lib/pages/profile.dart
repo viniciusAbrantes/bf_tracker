@@ -98,12 +98,11 @@ class ProfileFormState extends State<ProfileForm> {
           Center(
             child: ElevatedButton(
               onPressed: () async {
-                if (_formKey.currentState!.validate()) {
-                  await saveProfileData(() {
-                    if (!mounted) return;
-                    Navigator.pushNamed(context, Strings.homePage);
-                  });
-                }
+                if (!_formKey.currentState!.validate()) return;
+                await saveProfileData(() {
+                  if (!mounted) return;
+                  Navigator.pushNamed(context, Strings.homePage);
+                });
               },
               child: const Text(Strings.saveButton),
             ),
