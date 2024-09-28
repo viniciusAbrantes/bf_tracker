@@ -26,7 +26,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(fontFamily: GoogleFonts.poppins().fontFamily),
+      theme: ThemeData(
+        fontFamily: GoogleFonts.poppins().fontFamily,
+      ),
       initialRoute: initialRoute,
       routes: {
         Strings.homePage: (context) => const HomePage(),

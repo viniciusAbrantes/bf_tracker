@@ -1,8 +1,11 @@
 import 'package:bf_tracker/widgets/body_fat_list.dart';
+import 'package:bf_tracker/widgets/log_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite/sqflite.dart';
 
 import '../constants/strings.dart';
+import '../models/body_fat_log.dart';
 import '../services/database_service.dart';
 
 class HomePage extends StatefulWidget {
@@ -15,6 +18,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   String _profileName = '';
   final DatabaseService _databaseService = DatabaseService.instance;
+  Future<List<BodyFatLog>> logs = DatabaseService.instance.getLogs();
 
   @override
   void initState() {
@@ -54,6 +58,8 @@ class _HomePageState extends State<HomePage> {
               '${Strings.welcomeBack}, $_profileName :)',
               style: Theme.of(context).textTheme.labelLarge,
             ),
+            const SizedBox(height: 16),
+            SizedBox(height: 200, child: LogLineChart(logs)),
             const SizedBox(height: 16),
             BodyFatList()
             //_logList()
@@ -113,12 +119,12 @@ class _HomePageState extends State<HomePage> {
                       child: ElevatedButton(
                         onPressed: () {
                           if (!formKey.currentState!.validate()) return;
-                          saveBfLog(
-                              double.parse(weightController.text),
-                              double.parse(bfPercentageController.text),
-                              () {
+                          saveBfLog(double.parse(weightController.text),
+                              double.parse(bfPercentageController.text), () {
                             bfPercentageController.text = '';
-                            setState(() {});
+                            setState(() {
+                              logs = _databaseService.getLogs();
+                            });
                             Navigator.pop(context);
                           });
                         },

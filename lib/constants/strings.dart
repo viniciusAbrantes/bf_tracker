@@ -25,7 +25,10 @@ class Strings {
   static const String invalidAge = 'Please inform a valid age';
   static const String invalidHeight = 'Please inform a valid height';
   static const String saveButton = 'Save';
-
+  
+  //log chart
+  static const String insufficientData = 'Not enough logs to display a chart';
+  
   //profile data
   static const String profileNameKey = 'profile_name';
   static const String profileAgeKey = 'profile_age';
